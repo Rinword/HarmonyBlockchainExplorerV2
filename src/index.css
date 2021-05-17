@@ -1,0 +1,23 @@
+@import-normalize;
+
+a {
+    text-decoration: none;
+    outline: 0;
+}
+
+.g-table-header thead tr th {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.g-table-header thead tr th:last-child {
+    text-align: right;
+}
+
+.g-table-body-last-col-right tbody td:last-child {
+    text-align: left !important;
+}
+
+.g-table-no-header thead {
+    display: none;
+}
