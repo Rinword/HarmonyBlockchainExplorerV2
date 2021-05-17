@@ -7,7 +7,7 @@ import {
   ONEValue,
   RelativeTimer,
 } from "src/components/ui";
-import { AddressDetailsDisplay } from "./AddressDetails";
+import { AddressDetailsDisplay, getType, TAddressType } from "./AddressDetails";
 import { getRelatedTransactions, getContractsByField, getUserERC20Balances } from "src/api/client";
 import {
   Filter,
@@ -15,9 +15,10 @@ import {
   RelatedTransactionType,
 } from "src/types";
 import { useParams } from "react-router-dom";
-import { TransactionsTable } from "../../components/tables/TransactionsTable";
+import { TransactionsTable } from "src/components/tables/TransactionsTable";
+import { Erc20, useERC20Pool } from "src/hooks/ERC20_Pool";
+import {ERC721, useERC721Pool} from "src/hooks/ERC721_Pool";
 import { FormNextLink } from "grommet-icons";
-import dayjs from "dayjs";
 
 const initFilter: Filter = {
   offset: 0,
@@ -77,11 +78,17 @@ export function AddressPage() {
   }, [id]);
 
   const { limit = 10 } = filter;
+  const erc20Map = useERC20Pool();
+  const erc721Map = useERC721Pool();
+
+  const erc20Token = erc20Map[id] || null;
+  const erc721Token = erc721Map[id] || null;
+  const type = getType(contracts, erc20Token, erc721Token);
 
   return (
     <BaseContainer pad={{ horizontal: "0" }}>
       <Text size="xlarge" weight="bold" margin={{ bottom: "medium" }}>
-        Address
+        {getHeaderText(type, { contracts, erc20Token, erc721Token })}
       </Text>
       <BasePage margin={{ vertical: "0" }}>
         <AddressDetailsDisplay address={id} contracts={contracts} tokens={tokens} />
@@ -221,3 +228,20 @@ const relatedTxMap: Record<RelatedTransactionType, string> = {
   internal_transaction: "Internal Transaction",
   stacking_transaction: "Staking Transaction",
 };
+
+function getHeaderText(type: TAddressType, data: { erc20Token: Erc20, erc721Token: ERC721, contracts: any }) {
+  const { contracts, erc20Token, erc721Token } = data;
+  if(!!erc20Token) {
+    return `HRC20 ${erc20Token.name}`;
+  }
+
+  if(!!erc721Token) {
+    return `HRC721 ${erc721Token.name}`;
+  }
+
+  if(!!contracts) {
+    return 'Contract';
+  }
+
+  return 'Address';
+}

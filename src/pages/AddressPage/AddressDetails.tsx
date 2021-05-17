@@ -9,6 +9,7 @@ import {
 import { AddressDetails } from "src/types";
 import { TokensInfo } from "./TokenInfo";
 import { Erc20, useERC20Pool } from "src/hooks/ERC20_Pool";
+import {ERC721, useERC721Pool} from "src/hooks/ERC721_Pool";
 
 interface AddressDetailsProps {
   address: string;
@@ -19,11 +20,13 @@ interface AddressDetailsProps {
 export function AddressDetailsDisplay(props: AddressDetailsProps) {
   const { address, contracts, tokens } = props;
   const erc20Map = useERC20Pool();
+  const erc721Map = useERC721Pool();
 
   const erc20Token = erc20Map[address] || null;
-  const type = getType(contracts, erc20Token);
+  const erc721Token = erc721Map[address] || null;
+  const type = getType(contracts, erc20Token, erc721Token);
 
-  const data = { ...contracts, ...erc20Token, address, token: tokens };
+  const data = { ...contracts, ...erc20Token, ...erc721Token, address, token: tokens };
 
   if (!data) {
     return null;
@@ -78,16 +81,7 @@ const addressPropertyDisplayNames: Record<
   string,
   (data: any, options: { type: TAddressType }) => React.ReactNode
 > = {
-  address: (data, options) => {
-    if (options.type === "erc20") {
-      return `HRC20 ${data.name}`;
-    }
-    if (options.type === "contract") {
-      return "Contract";
-    }
-
-    return "Address";
-  },
+  address: () => 'Address',
   value: () => "Value",
   creatorAddress: () => "Creator",
   solidityVersion: () => "Solidity version",
@@ -107,9 +101,6 @@ const addressPropertyDisplayValues: Record<
   (value: any, data: any, options: { type: TAddressType }) => React.ReactNode
 > = {
   address: (value, data, options: { type: TAddressType }) =>  {
-    if(options.type === 'erc20') {
-      return <Address address={value} displayHash />
-    }
     return <Text size="small">{value}</Text>
   },
   value: (value) => <TokenValue value={value} />,
@@ -148,11 +139,15 @@ const addressPropertyOrder: Record<string, number> = {
   bytecode: 34,
 };
 
-type TAddressType = "address" | "contract" | "erc20" | "erc721";
+export type TAddressType = "address" | "contract" | "erc20" | "erc721";
 
-function getType(contracts: AddressDetails, erc20Token: Erc20): TAddressType {
+export function getType(contracts: AddressDetails, erc20Token: Erc20, erc721Token: ERC721): TAddressType {
   if (!!contracts && !!erc20Token) {
     return "erc20";
+  }
+
+  if (!!contracts && !!erc721Token) {
+    return "erc721";
   }
 
   if (!!contracts) {
