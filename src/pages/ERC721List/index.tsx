@@ -52,9 +52,8 @@ export const ERC721List = () => {
     if (
       action === "nextPage" &&
       //@ts-ignore
-      (filter.offset + filter.limit < !!search
-        ? searchedTokenLength
-        : erc721Tokens.length)
+      filter.offset + filter.limit <
+        (!!search ? searchedTokenLength : erc721Tokens.length)
     ) {
       newFilter.offset = Math.min(
         //@ts-ignore
