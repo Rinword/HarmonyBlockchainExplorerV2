@@ -1,9 +1,9 @@
-import React, { useState} from 'react';
-import {Box, Text} from "grommet";
+import React, { useState } from "react";
+import { Box, Text } from "grommet";
 
 import { TransactionsTable } from "src/components/tables/TransactionsTable";
 import { Filter, InternalTransaction } from "src/types";
-import {Address, ONEValue, TransactionType } from "src/components/ui";
+import { Address, ONEValue, TransactionType } from "src/components/ui";
 
 interface InternalTransactionListProps {
   list: InternalTransaction[];
@@ -26,10 +26,10 @@ export function InternalTransactionList(props: InternalTransactionListProps) {
   const { limit = 10 } = filter;
 
   return (
-    <Box margin={{ top: 'medium' }}>
+    <Box margin={{ top: "medium" }}>
       <TransactionsTable
-        columns={getColumns({timestamp})}
-        data={list.sort((a, b) => a.index > b.index ? 1 : -1)}
+        columns={getColumns({ timestamp })}
+        data={list.sort((a, b) => (a.index > b.index ? 1 : -1))}
         totalElements={100}
         showIfEmpty
         hidePagination
@@ -40,7 +40,7 @@ export function InternalTransactionList(props: InternalTransactionListProps) {
         minWidth="960px"
       />
     </Box>
-  )
+  );
 }
 
 function getColumns(props?: any) {
@@ -56,9 +56,25 @@ function getColumns(props?: any) {
       ),
       render: (data: InternalTransaction) => (
         <Text size="small">
-          <TransactionType type={data.type}/>
+          <TransactionType type={data.type} />
         </Text>
       ),
+    },
+    {
+      property: "method",
+      header: (
+        <Text color="minorText" size="small" style={{ fontWeight: 300 }}>
+          Suggested Method
+        </Text>
+      ),
+      render: (data: InternalTransaction) => {
+        const signature =
+          // @ts-ignore
+          data.signatures &&
+          // @ts-ignore
+          data.signatures.map((s) => s.signature)[0].split("(")[0];
+        return <Text size="small">{signature || "—"}</Text>;
+      },
     },
     {
       property: "from",

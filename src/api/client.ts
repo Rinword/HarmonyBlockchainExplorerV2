@@ -37,6 +37,10 @@ export function getTransactionLogsByField(params: any[]) {
   return transport('getLogsByField', params) as Promise<any>;
 }
 
+export function getByteCodeSignatureByHash(params: any[]) {
+  return transport('getSignaturesByHash', params) as Promise<any>;
+}
+
 export function getRelatedTransactions(params: any[]) {
   return transport('getRelatedTransactions', params) as Promise<RelatedTransaction[]>;
 }

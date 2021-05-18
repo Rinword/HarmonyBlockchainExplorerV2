@@ -37,11 +37,12 @@ interface LogItemProps {
     address: string;
     topics: string[];
     data: string;
+    signatures: any[] | null;
   };
 }
 
 const LogItem = (props: LogItemProps) => {
-  const { address, topics, data } = props.log;
+  const { address, topics, data, signatures } = props.log;
 
   return (
     <Box
@@ -54,26 +55,39 @@ const LogItem = (props: LogItemProps) => {
           Address
         </Text>
         <Text size="small" color="brand">
-          <Address address={address} style={{ wordBreak: 'break-all' }} />
+          <Address address={address} style={{ wordBreak: "break-all" }} />
         </Text>
       </Box>
+
+      {signatures && (
+        <Box>
+          <Text color="minorText" size="small">
+            Suggested Event
+          </Text>
+          <Text size="small" color="brand">
+            {signatures.map((s) => s.signature).join(", ")}
+          </Text>
+        </Box>
+      )}
+
       <Box>
         <Text color="minorText" size="small">
           Topics
         </Text>
         <Box gap="xxsmall">
-          {topics.map(((topic, i) => (
-            <Text size="small" color="brand" style={{ wordBreak: 'break-all' }}>
-              {topic}{i !== topics.length - 1 ?', ' : ''}
+          {topics.map((topic, i) => (
+            <Text size="small" color="brand" style={{ wordBreak: "break-all" }}>
+              {topic}
+              {i !== topics.length - 1 ? ", " : ""}
             </Text>
-          )))}
+          ))}
         </Box>
       </Box>
       <Box>
         <Text color="minorText" size="small">
           Data
         </Text>
-        <Text size="small" color="brand" style={{ wordBreak: 'break-all' }}>
+        <Text size="small" color="brand" style={{ wordBreak: "break-all" }}>
           {data}
         </Text>
       </Box>

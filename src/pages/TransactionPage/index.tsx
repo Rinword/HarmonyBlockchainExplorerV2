@@ -11,6 +11,7 @@ import {
   getInternalTransactionsByField,
   getTransactionByField,
   getTransactionLogsByField,
+  getByteCodeSignatureByHash,
 } from "src/api/client";
 import { AllBlocksTable } from "../AllBlocksPage/AllBlocksTable";
 
@@ -41,16 +42,27 @@ export const TransactionPage = () => {
     const getInternalTxs = async () => {
       try {
         //@ts-ignore
-        let trxs = await getInternalTransactionsByField([
+        const txs = await getInternalTransactionsByField([
           0,
           "transaction_hash",
           tx.hash,
         ]);
-        setTrxs(trxs as InternalTransaction[]);
+
+        const methodSignatures = await Promise.all(
+          txs.map((tx) => getByteCodeSignatureByHash([tx.input.slice(0, 10)]))
+        );
+
+        const txsWithSignatures = txs.map((l, i) => ({
+          ...l,
+          signatures: methodSignatures[i],
+        }));
+
+        setTrxs(txsWithSignatures as InternalTransaction[]);
       } catch (err) {
         console.log(err);
       }
     };
+
     getInternalTxs();
   }, [tx]);
 
@@ -58,17 +70,28 @@ export const TransactionPage = () => {
     const getLogs = async () => {
       try {
         //@ts-ignore
-        let logs = await getTransactionLogsByField([
+        const logs: any[] = await getTransactionLogsByField([
           0,
           "transaction_hash",
           tx.hash,
         ]);
-        setLogs(logs as any);
+
+        const logsSignatures = await Promise.all(
+          logs.map((l) => getByteCodeSignatureByHash([l.topics[0]]))
+        );
+
+        const logsWithSignatures = logs.map((l, i) => ({
+          ...l,
+          signatures: logsSignatures[i],
+        }));
+
+        setLogs(logsWithSignatures as any);
         setIsLoading(false);
       } catch (err) {
         console.log(err);
       }
     };
+
     getLogs();
   }, [tx]);
 
